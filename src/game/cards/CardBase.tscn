@@ -1,0 +1,208 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://src/game/cards/CardBase.cs" type="Script" id=1]
+
+[sub_resource type="Animation" id=1]
+resource_name = "Card_Flip"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1e-05, 1 ), Vector2( 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CardBack:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "Card_UnFlip"
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rect_scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1e-05, 1 ), Vector2( 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CardBack:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 113.602
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 70, 90 )
+
+[sub_resource type="ParticlesMaterial" id=5]
+emission_shape = 2
+emission_box_extents = Vector3( 10, 87, 1 )
+flag_disable_z = true
+spread = 10.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 25.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+
+[sub_resource type="ParticlesMaterial" id=6]
+emission_shape = 2
+emission_box_extents = Vector3( 10, 87, 1 )
+flag_disable_z = true
+direction = Vector3( -1, 0, 0 )
+spread = 10.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 25.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+
+[node name="CardBase" type="PanelContainer"]
+margin_right = 140.0
+margin_bottom = 180.0
+rect_min_size = Vector2( 140, 180 )
+mouse_filter = 2
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 133.0
+margin_bottom = 173.0
+mouse_filter = 2
+
+[node name="CardRoleData" type="RichTextLabel" parent="VBoxContainer"]
+margin_right = 126.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 0, 20 )
+mouse_filter = 2
+bbcode_enabled = true
+bbcode_text = "[center]Role[/center]"
+text = "Role"
+
+[node name="CardImageData" type="TextureRect" parent="VBoxContainer"]
+margin_top = 24.0
+margin_right = 126.0
+margin_bottom = 128.0
+mouse_filter = 2
+size_flags_vertical = 3
+expand = true
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+margin_top = 132.0
+margin_right = 126.0
+margin_bottom = 166.0
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="VBoxContainer/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 119.0
+margin_bottom = 27.0
+mouse_filter = 2
+
+[node name="CardTeamData" type="RichTextLabel" parent="VBoxContainer/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 119.0
+margin_bottom = 27.0
+rect_min_size = Vector2( 0, 20 )
+mouse_filter = 2
+bbcode_enabled = true
+bbcode_text = "[center]Team[/center]"
+text = "Team"
+
+[node name="CardBack" type="Panel" parent="."]
+visible = false
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 133.0
+margin_bottom = 173.0
+mouse_filter = 2
+
+[node name="Tween" type="Tween" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/Card_Flip = SubResource( 1 )
+anims/Card_UnFlip = SubResource( 2 )
+
+[node name="RotatingArea" type="Area2D" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RotatingArea"]
+position = Vector2( 70, 90 )
+shape = SubResource( 3 )
+
+[node name="CardArea" type="Area2D" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CardArea"]
+position = Vector2( 70, 90 )
+shape = SubResource( 4 )
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+show_behind_parent = true
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 133.0
+margin_bottom = 173.0
+
+[node name="Control" type="Control" parent="NinePatchRect"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Particles2D" type="Particles2D" parent="NinePatchRect/Control"]
+position = Vector2( 60, 0 )
+emitting = false
+amount = 100
+local_coords = false
+process_material = SubResource( 5 )
+
+[node name="Particles2D2" type="Particles2D" parent="NinePatchRect/Control"]
+position = Vector2( -60, 0 )
+emitting = false
+amount = 100
+local_coords = false
+process_material = SubResource( 6 )
