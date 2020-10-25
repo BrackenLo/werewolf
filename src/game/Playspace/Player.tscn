@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/game/Playspace/Player.cs" type="Script" id=1]
+
+[node name="Player" type="ColorRect"]
+margin_right = 40.0
+margin_bottom = 40.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -40.0
+margin_top = -27.177
+margin_right = 40.0
+margin_bottom = -6.17699
+text = "Player Name"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
