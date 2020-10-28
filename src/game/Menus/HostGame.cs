@@ -1,17 +1,28 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+
 public class HostGame : PanelContainer
 {
-
     public VBoxContainer role_selection_box;
 
     public Label role_count_node;
     public Label player_count_node;
 
     private LineEdit port_node;
+    private LineEdit password_node;
     private CheckButton werewolf_node;
 
+    private SpinBox discussion_time;
+    private SpinBox role_time;
+    private SpinBox diff_role_time;
+
+    private Label warning_label_node;
     private Button start_button_node;
+
+    //==========================================================
+
+    private Dictionary<CardDatabase.roles, HostGameSelectionButton> selection_buttons = new Dictionary<CardDatabase.roles, HostGameSelectionButton>();
 
     //==========================================================
 
@@ -40,8 +51,14 @@ public class HostGame : PanelContainer
         player_count_node = (Label)GetNode("HBoxContainer/VBoxContainer/PanelContainer/GridContainer/PlayerCountData");
 
         port_node = (LineEdit)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/PortData");
+        password_node = (LineEdit)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/PasswordData");
         werewolf_node = (CheckButton)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/GuaranteedWerewolfData");
 
+        discussion_time = (SpinBox)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/DiscussionTimeData");
+        role_time = (SpinBox)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/RoleTimeData");
+        diff_role_time = (SpinBox)GetNode("HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer/DiffRoleTimeData");
+
+        warning_label_node = (Label)GetNode("HBoxContainer/PanelContainer/NinePatchRect/WarningLabel");
         start_button_node = (Button)GetNode("HBoxContainer/PanelContainer/NinePatchRect/HSplitContainer/StartButton");
         //-------------------------------------------------------
 
@@ -50,6 +67,9 @@ public class HostGame : PanelContainer
 
         foreach(CardDatabase.roles role in values)  //Go through each of the roles
         {
+            if (role == CardDatabase.roles.none)
+                continue;
+
             //create a new button
             PackedScene packed = (PackedScene)ResourceLoader.Load("res://src/game/Menus/HostGameSelectionButton.tscn");
             HostGameSelectionButton selectionButton = (HostGameSelectionButton)packed.Instance();
@@ -57,7 +77,32 @@ public class HostGame : PanelContainer
             //Add the button to the menu and assign it its role
             role_selection_box.AddChild(selectionButton);
             selectionButton.initialise(this, role);
+
+            selection_buttons.Add(role, selectionButton);
         }
+
+        if (GameData.role_list != null)
+        {
+            GD.PrintS("GameData is not null", GameData.role_list.Count);
+            foreach(CardDatabase.roles role in GameData.role_list)
+            {
+                selection_buttons[role].iterate_amount();
+                selection_buttons[role].set_button_pressed(true);
+            }
+        }
+
+        //-----------------------------------------------------------------------------
+
+        discussion_time.Value = GameData.discussion_time;
+        role_time.Value = GameData.normal_role_time;
+        diff_role_time.Value = GameData.difficult_role_time;
+
+        if (GameData.port != -1 && GameData.port != DEFAULT_PORT)
+        {
+            port_node.Text = $"{GameData.port}";
+        }
+
+        //-----------------------------------------------------------------------------
 
         //update all the menu statistics
         update_stats();
@@ -98,7 +143,6 @@ public class HostGame : PanelContainer
 
         //Function for enabling the start button if all good
         _check_stats_valid();
-
     }
 
     //Trigger for the port input area to check if its valid on each keystroke
@@ -111,7 +155,6 @@ public class HostGame : PanelContainer
     //If everything is fine, it will enable the start game button
     private void _check_stats_valid()
     {
-
         port_node.Text.Trim();
         //If the user has left the port node empty, use the default values
         if (port_node.Text == "")
@@ -126,14 +169,16 @@ public class HostGame : PanelContainer
             }
             catch (FormatException)
             {
-                GD.PrintS("Port must be between 1025 - 65534");
+                //GD.PrintS("Port must be between 1025 - 65534");
+                warning_label_node.Text = "Error: Port must be between 1025 - 65534";
                 start_button_node.Disabled = true;
                 return; //Returning so that the function doesn't finish as so cant enable the start button
             }
 
             if (port < 1025 || port > 65534) //Also, make sure the port is between the following values. These are the only values I belive are open/available/unused usually
             {
-                GD.PrintS("Port must be between 1025 - 65534");
+                //GD.PrintS("Port must be between 1025 - 65534");
+                warning_label_node.Text = "Error: Port must be between 1025 - 65534";
                 start_button_node.Disabled = true;
                 return; //Returning so that the function doesn't finish as so cant enable the start button
             }
@@ -142,18 +187,21 @@ public class HostGame : PanelContainer
         if (player_count < minimum_player_count)
         {
             start_button_node.Disabled = true;
-            GD.PrintS("minimum number of roles not reached");
+            //GD.PrintS("minimum number of roles not reached");
+            warning_label_node.Text = "Error: Minimum number of players not reached";
             return; //Returning so that the function doesn't finish as so cant enable the start button
         }
 
         //If the function has reached here, all should be good and the start button can be enabled.
         start_button_node.Disabled = false;
+        warning_label_node.Text = "";
     }
 
     //Trigger for when the user presses the back button
     //Returns them to the main menu
     private void _on_BackButton_pressed()
     {
+        _set_gamedata_roles();
         GetTree().ChangeScene("res://src/game/Menus/MainMenu.tscn");
     }
 
@@ -169,8 +217,21 @@ public class HostGame : PanelContainer
         GameData.center_card_count = center_cards_count;
         GameData.guaranteed_werewolf = werewolf_node.Pressed;
 
+        GameData.discussion_time = (int)discussion_time.Value;
+        GameData.normal_role_time = (int)role_time.Value;
+        GameData.difficult_role_time = (int)diff_role_time.Value;
+
+        _set_gamedata_roles();
+
+        //After all assigned, Go to the main game gameroom
+        GetTree().ChangeScene("res://src/game/GameRoom.tscn");
+    }
+
+
+    private void _set_gamedata_roles()
+    {
         //Create a new empty array for the roles below
-        GameData.role_list = new System.Collections.Generic.List<CardDatabase.roles>();
+        GameData.role_list = new List<CardDatabase.roles>();
 
         //Go through each role button node and chech if its enabled and add that roll x times where x is how many the user entered
         foreach(Node node in role_selection_box.GetChildren())
@@ -186,9 +247,5 @@ public class HostGame : PanelContainer
                 }
             }
         }
-
-        //After all assigned, Go to the main game gameroom
-        GetTree().ChangeScene("res://src/game/GameRoom.tscn");
     }
-
 }

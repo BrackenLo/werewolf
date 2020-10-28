@@ -61,9 +61,19 @@ margin_bottom = 386.0
 mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "V. 0.2:
+text = "Temprary Todo List
+ - Card lighting problems at card reveal phase
+ - Add a more interesting game room / add player movement?
+ - Post game stuff
+ - Game Artwork +
+ - Game animations?
+
+
+
+V. 0.2:
  - Implemented the werewolf turn including seeing other werewolves or looking at one card from the center
  - Still only uses Godot text output for conveying messages.
+ - First commit to git. Yay :D
 V. 0.1:
  - Start of Patch notes
  - Basic main menu (no options)

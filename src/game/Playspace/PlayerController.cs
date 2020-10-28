@@ -7,25 +7,47 @@ public class PlayerController : Node2D
 
     //=================================================================
 
+    [Signal]
+    public delegate void PlayerSelected(int player_id);
+
+    //=================================================================
+
     public List<Server.player_data> player_list {get; private set;} = new List<Server.player_data>();
     public Dictionary<int, Player> player_id_to_icon {get; private set;} = new Dictionary<int, Player>();
     public Dictionary<int, Server.player_data> player_data_dict {get; private set;} = new Dictionary<int, Server.player_data>();
 
     private Vector2 board_center = new Vector2();
-    private float hor_rad;
-    private float ver_rad;
+    public Vector2 center_card_area {get; private set;} = new Vector2();
 
     //=================================================================
 
     public int node_size {get; private set;} = 0;
 
+    public int selected_player;
+
     //=================================================================
 
-    public override void _Ready()
+    public void set_center_area(Vector2 area)
     {
-        hor_rad = GetViewportRect().Size.x * 0.9F;
-        ver_rad = GetViewportRect().Size.y * 0.768F;
+        center_card_area = area;
+        reset_positions();
     }
+
+    //=================================================================
+
+    public int get_id_by_position(int player_position)
+    {
+        foreach(Server.player_data player in player_list)
+        {
+            if (player.player_position == player_position)
+            {
+                return player.player_id;
+            }
+        }
+        return -1;
+    }
+
+    //=================================================================
     
     public void add_players(List<Server.player_data> players)
     {
@@ -35,14 +57,17 @@ public class PlayerController : Node2D
             Player new_player = (Player)packed.Instance();
 
             AddChild(new_player);
-            new_player.init(player.player_name, player.player_color);
+            new_player.init(player.player_id, player.player_position, player.player_name, player.player_color);
         
             player_list.Add(player);
             player_id_to_icon.Add(player.player_id, new_player);
             player_data_dict.Add(player.player_id, player);
 
+            new_player.Connect("PlayerSelected", this, nameof(_player_selected));
+            new_player.Connect("PlayerUnselected", this, nameof(_player_unselected));
+
             player_list = sort_players(player_list);
-            reset_positions(player_list, player_id_to_icon);
+            reset_positions();
         }
     }
 
@@ -72,25 +97,55 @@ public class PlayerController : Node2D
         return sorted_list;
     }
 
-    public void reset_positions(List<Server.player_data> player_data, Dictionary<int, Player> player_nodes)
+    public void reset_positions()
     {
         float player_index = 0;
 
         float angle_spacing = 360 / player_list.Count;
 
-        foreach(Server.player_data data in player_data)
+        foreach(Server.player_data data in player_list)
         {
-            Player player_node = player_nodes[data.player_id];
+            float min_dist = Mathf.Min(center_card_area.x * 1.70F, center_card_area.y * 2.65F);
+
+            float hor_rad = min_dist;
+            float ver_rad = min_dist;
+
+
+            //float hor_rad = center_card_area.x * 1.3F;
+            //float ver_rad = center_card_area.y * 2F;
+
+
+            Player player_node = player_id_to_icon[data.player_id];
 
             float angle_deg = angle_spacing * player_index;
             float angle = Mathf.Deg2Rad(angle_deg + 90);
 
             Vector2 oval_angle_vector = new Vector2(hor_rad * Mathf.Cos(angle), ver_rad * Mathf.Sin(angle));
 
-            Vector2 player_pos = board_center + oval_angle_vector - player_node.RectSize / 2;
+            Vector2 player_pos = board_center + oval_angle_vector;
 
-            player_node.RectPosition = player_pos;
-            //player.RectRotation = angle_deg;
+            //Triangle math and shit
+
+            float player_area_length = new Vector2().DistanceTo(player_pos) * 1.2F;
+            float player_area_angle = Mathf.Min(angle_spacing, 180);
+
+            Vector2 pos_1 = new Vector2();
+
+            float hyp = player_area_length / Mathf.Cos(Mathf.Deg2Rad(player_area_angle / 2));
+            float adj1 = Mathf.Cos(angle + Mathf.Deg2Rad(player_area_angle / 2)) * hyp;
+            float opp1 = Mathf.Sin(angle + Mathf.Deg2Rad(player_area_angle / 2)) * hyp;
+            Vector2 pos_2 = new Vector2(adj1, opp1);
+
+            float adj2 = Mathf.Cos(angle - Mathf.Deg2Rad(player_area_angle / 2)) * hyp;
+            float opp2 = Mathf.Sin(angle - Mathf.Deg2Rad(player_area_angle / 2)) * hyp;
+
+            Vector2 pos_3 = new Vector2(adj2, opp2);
+
+            // done (thank goodness)
+
+            player_node.set_player_area(pos_1, pos_2, pos_3);
+
+            player_node.set_position(player_pos);
 
             player_index++;
         }
@@ -99,20 +154,93 @@ public class PlayerController : Node2D
     //======================================================================
     //======================================================================
 
-    public List<int> player_position_to_id(List<int> positions)
+    public void set_selecting_players(bool value)
     {
-        List<int> to_return = new List<int>();
+        set_selecting_players(value, new int[]{});
+    }
 
-        foreach(int pos in positions)
+    public void set_selecting_players(bool value, int[] exclude)
+    {
+        foreach (KeyValuePair<int, Player> player in player_id_to_icon)
         {
-            to_return.Add(player_list[pos].player_id);
+            bool found = false;
+            foreach(int x in exclude)
+            {
+                if (get_id_by_position(x) == player.Key)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                player.Value.set_player_selectable(value);
+            else
+                player.Value.set_player_selectable(!value);
         }
+    }
 
-        return to_return;
+    public void clear_selected_players()
+    {
+        foreach(KeyValuePair<int, Player> data in player_id_to_icon)
+        {
+            data.Value.deselect_player();
+        }
+        selected_player = -1;
+    }
+
+    //--------------------------------------------
+
+    //Function connected to signal
+    private void _player_selected(int player_id)
+    {
+        set_selecting_players(false);
+        selected_player = player_id;
+
+        EmitSignal(nameof(PlayerSelected), player_id);
+    }
+
+    private void _player_unselected(int player_id)
+    {
+        //set_selecting_players(true);
     }
 
     //======================================================================
     //======================================================================
 
-    
+    public void set_player_spotlight(int player_id, bool value)
+    {
+        player_id_to_icon[player_id].set_player_spotlight(value);
+    }
+
+    public void set_players_spotlights(bool value)
+    {
+        foreach(KeyValuePair<int, Player> player in player_id_to_icon)
+        {
+            player.Value.set_player_spotlight(value);
+        }
+    }
+
+    //======================================================================
+    //======================================================================
+
+    public void set_all_player_mouse(bool value)
+    {
+        if (IsNetworkMaster())
+            Rpc("_set_all_player_mouse", value);
+    }
+
+    [RemoteSync]
+    private void _set_all_player_mouse(bool value)
+    {
+        if (GetTree().GetRpcSenderId() == 1)
+        {
+            foreach(KeyValuePair<int, Player> data in player_id_to_icon)
+            {
+                data.Value.set_player_mouse(value);
+            }
+        }
+    }
+
+    //======================================================================
+    //======================================================================
 }

@@ -21,15 +21,15 @@ margin_right = 542.0
 margin_bottom = 586.0
 size_flags_horizontal = 3
 
-[node name="NinePatchRect" type="NinePatchRect" parent="HBoxContainer/PanelContainer"]
+[node name="NinePatchRect" type="VBoxContainer" parent="HBoxContainer/PanelContainer"]
 margin_left = 7.0
 margin_top = 7.0
 margin_right = 535.0
 margin_bottom = 579.0
 
 [node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/PanelContainer/NinePatchRect"]
-anchor_right = 1.0
-margin_bottom = 14.0
+margin_right = 528.0
+margin_bottom = 28.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -44,13 +44,11 @@ align = 1
 valign = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/PanelContainer/NinePatchRect"]
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-margin_top = -26.0
-margin_bottom = 26.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
+margin_top = 133.0
+margin_right = 528.0
+margin_bottom = 388.0
+size_flags_vertical = 6
+custom_constants/separation = 7
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -60,22 +58,22 @@ margin_right = 528.0
 margin_bottom = 4.0
 
 [node name="Label" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
-margin_top = 8.0
+margin_top = 11.0
 margin_right = 528.0
-margin_bottom = 22.0
+margin_bottom = 25.0
 text = "Game Settings"
 align = 1
 valign = 1
 
 [node name="HSeparator2" type="HSeparator" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
-margin_top = 26.0
+margin_top = 32.0
 margin_right = 528.0
-margin_bottom = 30.0
+margin_bottom = 36.0
 
 [node name="GridContainer" type="GridContainer" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
-margin_top = 34.0
+margin_top = 43.0
 margin_right = 528.0
-margin_bottom = 102.0
+margin_bottom = 223.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 2
@@ -93,35 +91,111 @@ margin_bottom = 24.0
 size_flags_horizontal = 3
 placeholder_text = "59543"
 
-[node name="GuaranteedWerewolfText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
-margin_top = 41.0
+[node name="PasswordText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_top = 33.0
 margin_right = 142.0
-margin_bottom = 55.0
+margin_bottom = 47.0
+text = "Password:"
+
+[node name="PasswordData" type="LineEdit" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_left = 146.0
+margin_top = 28.0
+margin_right = 528.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+placeholder_text = "Leave blank for no password"
+
+[node name="GuaranteedWerewolfText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_top = 69.0
+margin_right = 142.0
+margin_bottom = 83.0
 text = "Guaranteed Werewolf:"
 
 [node name="GuaranteedWerewolfData" type="CheckButton" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
 margin_left = 146.0
-margin_top = 28.0
+margin_top = 56.0
 margin_right = 528.0
-margin_bottom = 68.0
+margin_bottom = 96.0
 pressed = true
 
-[node name="HSeparator3" type="HSeparator" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
-margin_top = 106.0
+[node name="DiscussionTimeText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_top = 105.0
+margin_right = 142.0
+margin_bottom = 119.0
+text = "Discussion time:"
+
+[node name="DiscussionTimeData" type="SpinBox" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_left = 146.0
+margin_top = 100.0
 margin_right = 528.0
-margin_bottom = 110.0
+margin_bottom = 124.0
+min_value = 5.0
+max_value = 600.0
+value = 60.0
+rounded = true
+align = 2
+
+[node name="RoleTimeText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_top = 133.0
+margin_right = 142.0
+margin_bottom = 147.0
+text = "Normal role time:"
+
+[node name="RoleTimeData" type="SpinBox" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_left = 146.0
+margin_top = 128.0
+margin_right = 528.0
+margin_bottom = 152.0
+min_value = 5.0
+max_value = 60.0
+value = 10.0
+rounded = true
+align = 2
+
+[node name="DiffRoleTimeText" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_top = 161.0
+margin_right = 142.0
+margin_bottom = 175.0
+text = "Difficult role time:"
+
+[node name="DiffRoleTimeData" type="SpinBox" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer/GridContainer"]
+margin_left = 146.0
+margin_top = 156.0
+margin_right = 528.0
+margin_bottom = 180.0
+min_value = 5.0
+max_value = 60.0
+value = 15.0
+rounded = true
+align = 2
+
+[node name="HSeparator3" type="HSeparator" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
+margin_top = 230.0
+margin_right = 528.0
+margin_bottom = 234.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="ErrorLabelNode" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect/VBoxContainer"]
+margin_top = 241.0
+margin_right = 528.0
+margin_bottom = 255.0
+align = 1
+valign = 1
+
+[node name="WarningLabel" type="Label" parent="HBoxContainer/PanelContainer/NinePatchRect"]
+margin_top = 494.0
+margin_right = 528.0
+margin_bottom = 508.0
+size_flags_vertical = 8
+align = 1
+valign = 1
+
 [node name="HSplitContainer" type="HSplitContainer" parent="HBoxContainer/PanelContainer/NinePatchRect"]
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -166.0
-margin_top = -60.0
-margin_right = 166.0
+margin_top = 512.0
+margin_right = 528.0
+margin_bottom = 572.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -134,7 +208,7 @@ text = "Return to Menu"
 
 [node name="StartButton" type="Button" parent="HBoxContainer/PanelContainer/NinePatchRect/HSplitContainer"]
 margin_left = 172.0
-margin_right = 332.0
+margin_right = 528.0
 margin_bottom = 60.0
 rect_min_size = Vector2( 160, 60 )
 disabled = true

@@ -26,22 +26,22 @@ custom_constants/separation = 12
 alignment = 1
 
 [node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
-margin_top = 199.0
+margin_top = 186.0
 margin_right = 227.0
-margin_bottom = 213.0
+margin_bottom = 200.0
 text = "Join Game"
 align = 1
 valign = 1
 
 [node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
-margin_top = 225.0
+margin_top = 212.0
 margin_right = 227.0
-margin_bottom = 229.0
+margin_bottom = 216.0
 
 [node name="GridContainer" type="GridContainer" parent="PanelContainer/VBoxContainer"]
-margin_top = 241.0
+margin_top = 228.0
 margin_right = 227.0
-margin_bottom = 293.0
+margin_bottom = 280.0
 columns = 2
 
 [node name="IPAddressText" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
@@ -55,6 +55,7 @@ margin_left = 77.0
 margin_right = 227.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 150, 0 )
+max_length = 20
 placeholder_text = "127.0.0.1"
 
 [node name="PortText" type="Label" parent="PanelContainer/VBoxContainer/GridContainer"]
@@ -69,23 +70,29 @@ margin_top = 28.0
 margin_right = 227.0
 margin_bottom = 52.0
 rect_min_size = Vector2( 150, 0 )
+max_length = 8
 placeholder_text = "59543"
 
 [node name="HSeparator2" type="HSeparator" parent="PanelContainer/VBoxContainer"]
-margin_top = 305.0
+margin_top = 292.0
 margin_right = 227.0
-margin_bottom = 309.0
+margin_bottom = 296.0
+
+[node name="ErrorLabelNode" type="Label" parent="PanelContainer/VBoxContainer"]
+margin_top = 308.0
+margin_right = 227.0
+margin_bottom = 322.0
 
 [node name="JoinButton" type="Button" parent="PanelContainer/VBoxContainer"]
-margin_top = 321.0
+margin_top = 334.0
 margin_right = 227.0
-margin_bottom = 341.0
+margin_bottom = 354.0
 text = "Join Game"
 
 [node name="ExitButton" type="Button" parent="PanelContainer/VBoxContainer"]
-margin_top = 353.0
+margin_top = 366.0
 margin_right = 227.0
-margin_bottom = 373.0
+margin_bottom = 386.0
 text = "Return to Menu"
 [connection signal="pressed" from="PanelContainer/VBoxContainer/JoinButton" to="." method="_on_JoinButton_pressed"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/ExitButton" to="." method="_on_ExitButton_pressed"]

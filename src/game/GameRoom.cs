@@ -29,7 +29,6 @@ public class GameRoom : Node2D
 
         server.init(this, user_select_screen, client);
         client.init(this, server, playspace);
-        playspace.init(this, client);
 
 
 

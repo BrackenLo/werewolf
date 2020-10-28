@@ -87,29 +87,28 @@ public class CardBase : PanelContainer
 
     public void load_card(CardDatabase.roles new_role)
     {
-        card_role = new_role;
+        if (card_role != new_role || card_role == CardDatabase.roles.none)
+        {
+            card_role = new_role;
 
-        CardDatabase cdb = new CardDatabase();
-        CardDatabase.card_data data = cdb.role_data[new_role];
+            CardDatabase cdb = new CardDatabase();
+            CardDatabase.card_data data = cdb.role_data[new_role];
 
 
-        role_name.BbcodeText = $"[center]{data.card_name}[/center]";
-        role_team.BbcodeText = $"[center]{cdb.team_data[data.card_team]}[/center]";
+            role_name.BbcodeText = $"[center]{data.card_name}[/center]";
+            role_team.BbcodeText = $"[center]{cdb.team_data[data.card_team]}[/center]";
 
-        Image img = new Image();
-        img.Load(data.card_art);
+            role_image.Texture = (Texture)GD.Load(data.card_art);
 
-        ImageTexture itex = new ImageTexture();
-        itex.CreateFromImage(img);
-        role_image.Texture = itex;
-
-        card_loaded = true;
+            card_loaded = true;
+        }
     }
 
     public void unload_card()
     {
         role_name.BbcodeText = "";
         role_image.Texture = null;
+        card_role = CardDatabase.roles.none;
 
         card_loaded = false;
     }
@@ -132,6 +131,28 @@ public class CardBase : PanelContainer
     {
         locked_position = new_pos;
         locked_rotation = new_rotation;
+    }
+
+    public void set_light_mask(int value)
+    {   
+        LightMask = value;
+
+        foreach(Node child in GetChildren())
+        {
+            set_light_mask(child, value);
+        }
+    }
+
+    private void set_light_mask(Node node, int value)
+    {
+        if (node is CanvasItem item)
+        {
+            item.LightMask = value;
+        }
+        foreach(Node child in node.GetChildren())
+        {
+            set_light_mask(child, value);
+        }
     }
 
 
@@ -176,8 +197,11 @@ public class CardBase : PanelContainer
 
     public void reveal_card()
     {
-        card_visible = true;
-        anim.Queue("Card_Flip");
+        if (!card_visible)
+        {
+            card_visible = true;
+            anim.Queue("Card_Flip");
+        }
     }
 
     public void hide_card()
@@ -185,6 +209,7 @@ public class CardBase : PanelContainer
         if (card_visible)
         {
             anim.Queue("Card_UnFlip");
+            un_review_card();
             card_visible = false;
             unload_card();
         }

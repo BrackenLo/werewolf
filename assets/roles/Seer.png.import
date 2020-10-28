@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/robber.jpg-de7d21042215669e85e7df455f46e287.stex"
+path="res://.import/Seer.png-6128533f73c9bce4d8177e7daedcaded.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/roles/robber.jpg"
-dest_files=[ "res://.import/robber.jpg-de7d21042215669e85e7df455f46e287.stex" ]
+source_file="res://assets/roles/Seer.png"
+dest_files=[ "res://.import/Seer.png-6128533f73c9bce4d8177e7daedcaded.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

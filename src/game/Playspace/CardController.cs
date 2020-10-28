@@ -20,39 +20,22 @@ public class CardController : Node2D
 
     //========================================================================
 
-    [Export]
-    public float hor_rad_percentage = 0.75F;
-    [Export]
-    public float ver_rad_percentage = 0.64F;
-
-    private float hor_rad;
-    private float ver_rad;
-
     //========================================================================
 
     public int center_card_count {get; private set;} = 3;
     public int player_count {get; private set;} = 1;
+
+    public Vector2 center_card_area {get; private set;} = new Vector2();
 
     //=========================================================================
     public List<int> selected_cards = new List<int>();
 
     //=========================================================================
 
-    public override void _Ready()
-    {
-        hor_rad = GetViewportRect().Size.x * hor_rad_percentage;
-        ver_rad = GetViewportRect().Size.y * ver_rad_percentage;
-    }
-
     public void init(int center_card_count, int player_count)
     {
         this.center_card_count = center_card_count;
         this.player_count = player_count;
-    }
-
-    public override void _Process(float delta)
-    {
-        //_reset_center_cards();
     }
 
     //=========================================================================
@@ -83,41 +66,37 @@ public class CardController : Node2D
 
     public void reset_positions()
     {
-        if (player_count + center_card_count == playspace_cards.Count)
+        if (playspace_cards.Count <= center_card_count)
         {
-            GD.PrintS("Resetting positions");
-            _reset_center_cards(playspace_cards, center_card_count, center_card_spacing, board_center);
-            _reset_player_cards(playspace_cards, center_card_count, hor_rad, ver_rad, board_center);
-        }
-        else if (playspace_cards.Count <= center_card_count)
-        {
-            _reset_center_cards(playspace_cards, playspace_cards.Count, center_card_spacing, board_center);
+            _reset_center_cards();
         }
         else
         {
-            _reset_center_cards(playspace_cards, center_card_count, center_card_spacing, board_center);
-            _reset_player_cards(playspace_cards, center_card_count, hor_rad, ver_rad, board_center);
+            _reset_center_cards();
+            _reset_player_cards();
         }
     }
 
-    private void _reset_center_cards(List<CardBase> cards, int center_count, float spacing, Vector2 center)
+    private void _reset_center_cards()
     {
         List<CardBase> center_cards = new List<CardBase>();
 
         float final_size = 0;
         float used_space = 0;
 
-        for (int x = 0; x < center_count; x++)
+        for (int x = 0; x < Mathf.Min(center_card_count, playspace_cards.Count); x++)
         {
-            center_cards.Add(cards[x]);
+            center_cards.Add(playspace_cards[x]);
 
-            final_size += cards[x].GetRect().Size.x * cards[x].RectScale.x;
-            final_size += spacing;
+            final_size += playspace_cards[x].GetRect().Size.x * playspace_cards[x].RectScale.x;
+            final_size += center_card_spacing;
         }
 
-        final_size -= spacing;
+        final_size -= center_card_spacing;
 
-        Vector2 card_offset = new Vector2(center.x - final_size / 2, center.y);
+        Vector2 card_offset = new Vector2(board_center.x - final_size / 2, board_center.y);
+
+        float tallest_card = 0;
 
         foreach (CardBase card in center_cards)
         {
@@ -128,23 +107,34 @@ public class CardController : Node2D
             float new_x = card_offset.x + used_space + special_spacing;
             float new_y = 0 - card.GetRect().Size.y / 2;
 
+            if (card.GetRect().Size.y > tallest_card)
+                tallest_card = card.GetRect().Size.y;
+
             card.move_card(new Vector2(new_x, new_y), 1);
             card.set_locked_position(new Vector2(new_x, new_y), 0);
 
             used_space += card.GetRect().Size.x * card.RectScale.x;
-            used_space += spacing;
+            used_space += center_card_spacing;
         }
+
+        center_card_area = new Vector2(used_space + center_card_spacing, tallest_card + center_card_spacing);
+
     }
 
     //-----------------------------------------
 
-    private void _reset_player_cards(List<CardBase> cards, int center_count, float hor_radius, float ver_radius, Vector2 center)
-    {
+    private void _reset_player_cards()
+    {   
+        float min_dist = Mathf.Min(center_card_area.x * 1.3F, center_card_area.y * 2F);
+
+        float hor_rad = min_dist;
+        float ver_rad = min_dist;
+
         List<CardBase> player_cards = new List<CardBase>();
 
-        for (int x = center_count; x < cards.Count; x++)
+        for (int x = center_card_count; x < playspace_cards.Count; x++)
         {
-            player_cards.Add(cards[x]);
+            player_cards.Add(playspace_cards[x]);
         }
 
         float angle_spacing = 360 / player_cards.Count;
@@ -156,10 +146,10 @@ public class CardController : Node2D
             float angle = Mathf.Deg2Rad(angle_deg + 90);
 
             Vector2 oval_angle_vector = new Vector2(
-                hor_radius * Mathf.Cos(angle),
-                ver_radius * Mathf.Sin(angle)
+                hor_rad * Mathf.Cos(angle),
+                ver_rad * Mathf.Sin(angle)
             );
-            Vector2 card_pos = center + oval_angle_vector - card.RectSize / 2;
+            Vector2 card_pos = board_center + oval_angle_vector - card.RectSize / 2;
 
             card.move_card(card_pos, 1);
             card.rotate_card(angle_deg, 1);
@@ -180,6 +170,11 @@ public class CardController : Node2D
         }
     }
 
+    public void set_selecting_player_cards(bool val)
+    {
+        set_selecting_player_cards(val, new int[]{});
+    }
+
     public void set_selecting_player_cards(bool val, int[] exclude)
     {
         for (int x = center_card_count; x < playspace_cards.Count; x++)
@@ -195,6 +190,8 @@ public class CardController : Node2D
             }
             if (!found)
                 playspace_cards[x].card_selectable = val;
+            else
+                playspace_cards[x].card_selectable = !val;
         }
     }
 
@@ -219,7 +216,7 @@ public class CardController : Node2D
     {
         selected_cards.Add(playspace_cards.IndexOf(card));
 
-        EmitSignal("SelectedCardsChanged", selected_cards.ToArray());
+        EmitSignal(nameof(SelectedCardsChanged), selected_cards.ToArray());
     }
 
     private void _card_unselected(CardBase card)
@@ -228,19 +225,12 @@ public class CardController : Node2D
         {
             GD.PrintS("Removing card", card);
             selected_cards.Remove(playspace_cards.IndexOf(card));
-            EmitSignal("SelectedCardsChanged", selected_cards.ToArray());
+            EmitSignal(nameof(SelectedCardsChanged), selected_cards.ToArray());
         }
     }
 
     //=========================================================================
     //=========================================================================
-
-    public void load_and_reveal_player_card(int player_pos, CardDatabase.roles role)
-    {
-        CardBase to_reveal = playspace_cards[player_pos + center_card_count];
-        to_reveal.load_card(role);
-        to_reveal.reveal_card();
-    }
 
     public void load_and_reveal_card(int position, CardDatabase.roles role)
     {
@@ -254,6 +244,39 @@ public class CardController : Node2D
         foreach(CardBase card in playspace_cards)
         {
             card.hide_card();
+        }
+    }
+
+    //=========================================================================
+    //=========================================================================
+
+    public void swap_cards(int pos1, int pos2)
+    {
+        if (pos1 >= playspace_cards.Count || pos2 >= playspace_cards.Count)
+        {
+            GD.PrintS("Cardswap out of bounds");
+            return;
+        }
+
+        GD.PrintS("Swapping", pos1,"and", pos2);
+
+        CardBase temp = playspace_cards[pos1];
+
+        playspace_cards[pos1] = playspace_cards[pos2];
+        playspace_cards[pos2] = temp;
+
+        _reset_player_cards();
+        _reset_center_cards();
+    }
+
+    //=========================================================================
+    //=========================================================================
+
+    public void set_cards_light_masks(int mask)
+    {
+        foreach(CardBase card in playspace_cards)
+        {
+            card.set_light_mask(mask);
         }
     }
 

@@ -8,6 +8,8 @@ public class JoinGame : PanelContainer
     private LineEdit ip_address_node;
     private LineEdit port_node;
 
+    private Label error_node;
+
     private const string DEFAULT_IP_ADDRESS = "127.0.0.1";
     private const int DEFAULT_PORT = 59543;
 
@@ -22,6 +24,17 @@ public class JoinGame : PanelContainer
     {
         ip_address_node = (LineEdit)GetNode("PanelContainer/VBoxContainer/GridContainer/IPAddressData");
         port_node = (LineEdit)GetNode("PanelContainer/VBoxContainer/GridContainer/PortData");
+
+        error_node = (Label)GetNode("PanelContainer/VBoxContainer/ErrorLabelNode");
+
+        if (GameData.ip_address != null && GameData.ip_address != DEFAULT_IP_ADDRESS)
+        {
+            ip_address_node.Text = GameData.ip_address;
+        }
+        if (GameData.port != -1 && GameData.port != DEFAULT_PORT)
+        {
+            port_node.Text = $"{GameData.port}";
+        }
     }
 
 
@@ -49,22 +62,27 @@ public class JoinGame : PanelContainer
             catch (FormatException)
             {
                 GD.PrintS("Port must be between 1025 - 65534");
+                error_node.Text = "Port must be between 1025 - 65534";
                 return;
             }
 
             if (port < 1025 || port > 65534)    //Also, make sure the port is between the following values. These are the only values I belive are open/available/unused usually
             {
                 GD.PrintS("Port must be between 1025 - 65534");
+                error_node.Text = "Port must be between 1025 - 65534";
                 return;
             }
         }
 
         //If the code has reached here, everything should be good
         //Set the state to client if it isnt already and also set the ip address and port before changing scene to game room where we will connect
+        error_node.Text = "";
         GameData.state = GameData.multiplayer_state.Client;
 
         GameData.ip_address = ip_address;
         GameData.port = port;
+
+        GameData.role_list = null;
 
         GetTree().ChangeScene("res://src/game/GameRoom.tscn");
     }
