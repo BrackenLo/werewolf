@@ -45,11 +45,9 @@ public class HostGameSelectionButton : PanelContainer
         CardDatabase cdb = new CardDatabase();
         CardDatabase.card_data data = cdb.role_data[role];
 
-        Image img = new Image();
-        img.Load(data.card_art);
-        ImageTexture itex = new ImageTexture();
-        itex.CreateFromImage(img);
-        role_texture.Texture = itex;
+
+
+        role_texture.Texture = (Texture)GD.Load(data.card_art);
 
         role_name.Text = data.card_name;
         team_name.BbcodeText = cdb.team_data[data.card_team];
@@ -71,25 +69,32 @@ public class HostGameSelectionButton : PanelContainer
         initialised = true;
     }
 
-
-    private void _toggle_button_toggled(bool toggle_mode)
+    public void iterate_amount()
     {
-        if (toggle_mode)
-        {
-            role_enabled = true;
-        }
-        else
-        {
-            role_enabled = false;
-        }
-        parent.update_stats();
+        current_amount++;
+        role_amount.Value = current_amount;
+    }
+    public void set_button_pressed(bool pressed)
+    {
+        toggle_button.Pressed = pressed;
+        role_enabled = pressed;
     }
 
+    //===============================================================
+    //Connected functions
     private void _role_amount_changed(float value)
     {
         current_amount = (int)value;
         parent.update_stats();
     }
+
+    private void _toggle_button_toggled(bool value)
+    {
+        set_button_pressed(value);
+        parent.update_stats();
+    }
+
+    //===============================================================
 
 
 

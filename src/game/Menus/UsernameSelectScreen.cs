@@ -19,10 +19,9 @@ public class UsernameSelectScreen : Control
 
     private String[] color_list = 
     {
-        "#FFFFFF", "#808080", "#000000", "#FF0000",
-        "#800000", "#FFFF00", "#808000", "#00FF00",
-        "#008000", "#00FFFF", "#008080", "#0000FF",
-        "#000080", "#FF00FF", "#800080", "#d35400"
+        "#B9B9B9", "#FF0000", "#FFFF00", "#00FF00", "#00FFFF",
+        "#FF00FF", "#FF7400", "#AAFF26", "#2699FF", "#8C0081",
+        "#75492B", "#4F44FF"
     };
 
     //===================================================================
@@ -51,7 +50,7 @@ public class UsernameSelectScreen : Control
         //Go through each of the players
         //Create a button with a color rect on top of it for each.
         //Only one button can be selected at a time 
-        for(int x = 0; x < total_players; x++)
+        for(int x = 0; x < color_list.Length; x++)
         {
             Button new_button = new Button();
             new_button.ToggleMode = true;

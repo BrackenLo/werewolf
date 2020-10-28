@@ -209,6 +209,7 @@ public class Server : Node
     {
         if (player_count == authenticated_users.Count && player_count == player_data_list.Count)
         {
+            get_enet().RefuseNewConnections = true;
             foreach(KeyValuePair<int, player_data> data in player_data_list)
             {
                 Rpc("_recieve_player_data", data.Value.player_id, data.Value.player_name, data.Value.player_color, data.Value.player_position);
